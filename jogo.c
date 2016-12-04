@@ -10,130 +10,151 @@
 #define ESQUERDA 97
 #define SAIR 27
 
+#define PAREDE 219
+#define ESPACO 255
+#define CAIXA 178
+#define MARCA 176
+#define PERSONAGEM 244
+
+#define LINHAS 10
+#define COLUNAS 20
 
 
-enum COLOR
-{
-    black , blue , green , cyan , red , magenta , brown , normal , darkgrey , lightblue , lightgreen , lightcyan , lightred , lightmagenta , yellow , white
-};
+//personagem
+int pers=PERSONAGEM;
+//espaço
+int e = ESPACO;
+int p = PAREDE;
+int c = CAIXA;
+int z = MARCA;
 
-const int CHAR_WIDTH = 6;
-const int CHAR_HEIGTH = 8;
-/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+int pontos=0;
 
-int main(int argc, char *argv[]) {
-	int c=0;
-    HANDLE hConsole;
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    //Default values
-//    typedef struct _CONSOLE_FONT_INFOEX
-//    {
-//        ULONG cbSize;
-//        DWORD nFont;
-//        COORD dwFontSize;
-//        UINT  FontFamily;
-//        UINT  FontWeight;
-//        WCHAR FaceName[LF_FACESIZE];
-//    } CONSOLE_FONT_INFOEX, *PCONSOLE_FONT_INFOEX;
-//
-//
-//    PCONSOLE_FONT_INFOEX consoleFont;
-//
-//     //Sets new font sizes
-//    consoleFont->dwFontSize.X = CHAR_WIDTH;
-//    consoleFont->dwFontSize.Y = CHAR_HEIGTH;
-//
-//    SetCurrentConsoleFontEx(hConsole,1, &consoleFont);
-
-	int i,j,A=10,B=10,x=0,y=0,x_ant,y_ant, passos=0,num_r;
-	int pers=1,bloco = 177,e =255,p=bloco,p2=179, k = 206;
-
-	int m[10][10] ={{e,p,p,p,p,p,p,p,p,p},
-				    {e,e,e,e,e,e,e,e,e,p},
-				    {p,p,p,p,p,p,p,p,e,p},
-				    {p,e,e,e,e,e,e,e,e,p},
-				    {p,e,p,p,p,p,p,p,p,p},
-				    {p,e,e,p,e,e,e,e,e,p},
-				    {p,e,e,k,e,e,p,e,e,p},
-				    {p,e,p,p,p,p,p,e,p,p},
-				    {p,e,e,e,e,e,e,e,e,p},
-				    {p,p,p,p,p,p,p,p,e,e}
-
-				  };
-
-	m[x][y]=pers;
-	while(c!=SAIR){
-	system("cls");
-
-	for(i=0;i<A;i++){
-		for(j=0;j<B;j++){
-                if(m[i][j]==e){
-                    SetConsoleTextAttribute(hConsole, lightred);
-                }else if(m[i][j]==p){
-                    SetConsoleTextAttribute(hConsole,green );
-                }else if(m[i][j]==pers){
-                    SetConsoleTextAttribute(hConsole,yellow);
-                }
-
+ void exibirJogo(int m[LINHAS][COLUNAS]){
+    for(int i=0;i<LINHAS;i++){
+		for(int j=0;j<COLUNAS;j++){
 			printf("%c",m[i][j]);
 		}
 		printf("\n");
-
 	}
-	printf("PASSOS: %i",passos);
-		x_ant = x;
-		y_ant=y;
-		c = getch();
+ }
 
-		if(x==9 && y==9){
-		printf("\n\nVOCE CHEGOU A SAIDA com %i PASSOS \0/",passos);
-		c = SAIR;
-	}
-	switch(c){
-		case CIMA: {
+int main(int argc, char *argv[]) {
+	int op=0;
+	int x=5,y=10,x_ant,y_ant;
 
 
-			if(x>0 && m[x-1][y]!=p){
+    int m[LINHAS][COLUNAS] ={{p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p},
+                             {p,p,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
+                             {p,p,e,e,z,e,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
+                             {p,p,e,e,e,p,e,p,e,c,e,e,e,e,e,e,e,e,p,p},
+                             {p,p,e,e,e,z,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
+                             {p,p,e,e,e,z,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
+                             {p,p,e,e,e,e,e,c,e,e,e,c,e,e,e,e,e,e,p,p},
+                             {p,p,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
+                             {p,p,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
+                             {p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p}
+
+				  };
+
+
+    //seta o jogador no cenário
+	m[x][y]=pers;
+
+	while(1){
+        //limpa a tela
+        system("cls");
+
+        exibirJogo(m);
+
+        if(pontos==3){
+            printf("Voce venceu!");
+            break;
+        }
+        x_ant = x;
+        y_ant=y;
+        op = getch();
+
+
+
+
+        switch(op){
+            case CIMA: {
+			if(x>0 && m[x-1][y]==ESPACO){
 				x-=1;
-				passos++;
+			}else{
+                if(m[x-1][y]==CAIXA){
+                  if((m[x-2][y]!=PAREDE) && (m[x-2][y]!=CAIXA)){
+                    if((m[x-2][y]==MARCA)){
+                        pontos++;
+                    }
+                    m[x-2][y] = m[x-1][y];
+                    x-=1;
+
+
+
+                  }
+                }
 			}
 
 			break;
 		}
 		case BAIXO: {
 
-			if(x<A-1 && m[x+1][y]!=p){
-
+			if(x<LINHAS-1 && m[x+1][y]==ESPACO){
 				x+=1;
-				passos++;
-				}
+            }else{
+                if(m[x+1][y]==CAIXA){
+                  if((m[x+2][y]!=PAREDE) && (m[x+2][y]!=CAIXA)){
+                      if(m[x+2][y]==MARCA){
+                            pontos++;
+                      }
+                    //o espaço em frente da caixa a recebe
+                    m[x+2][y] = m[x+1][y];
+                    // a posicao x atual é incrementada
+                    x+=1;
+
+                  }
+                }
+			}
 			break;
 		}
 		case ESQUERDA: {
-
-			if(y>0 && m[x][y-1]!=p){
-
+			if(y>0 && m[x][y-1]==ESPACO){
 				y-=1;
-				passos++;
-		}
+		}else{
+                if(m[x][y-1]==CAIXA){
+                  if((m[x][y-2]!=PAREDE) && (m[x][y-2]!=CAIXA)){
+                    if(m[x][y-2]==MARCA){
+                        pontos++;
+                        }
+                    m[x][y-2] = m[x][y-1];
+                    y-=1;
+
+
+                  }
+                }
+			}
 			break;
 		}
 		case DIREITA: {
-			if(m[x][y+1]==k){
-				num_r = rand( ) % 2;
-				if(num_r==1){
-					passos+=3;
-				}else if(num_r==0){
-					passos-=3;
-				}
-			}
-				if(y<B-1 && m[x][y+1]!=p)
+				if(y<COLUNAS-1 && m[x][y+1]==ESPACO)
 				{
-
 					y+=1;
-					passos++;
-				}
+				}else{
+                    if(m[x][y+1]==CAIXA){
+                        if((m[x][y+2]!=PAREDE) && (m[x][y+2]!=CAIXA)){
+                            if(m[x][y+2]==MARCA){
+                                pontos++;
+                            }
+                            m[x][y+2] = m[x][y+1];
+                            y+=1;
+
+
+                  }
+                }
+			}
 			break;
 		}
 
@@ -141,6 +162,7 @@ int main(int argc, char *argv[]) {
 
 	m[x_ant][y_ant]=e;
 	m[x][y]=pers;
+
 
 
 
