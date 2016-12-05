@@ -1,4 +1,3 @@
-#include <Windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
@@ -16,16 +15,19 @@
 #define MARCA 176
 #define PERSONAGEM 244
 
-#define LINHAS 10
-#define COLUNAS 20
+#define LINHAS 7
+#define COLUNAS 10
 
-#define L_MARCAS 2
-#define C_MARCAS 3
+#define L_MARCAS 4
+#define C_MARCAS 2
+
+#define TRUE 1
+#define FALSE 0
 
 
 
 
-//personagem
+//personagem (JOGADOR)
 int pers=PERSONAGEM;
 //espaço
 int e = ESPACO;
@@ -33,9 +35,9 @@ int p = PAREDE;
 int c = CAIXA;
 int z = MARCA;
 
-int pontos=0;
 
 
+ //exibe a matriz que representa o cenário do jogo
  void exibirJogo(int m[LINHAS][COLUNAS]){
     for(int i=0;i<LINHAS;i++){
 		for(int j=0;j<COLUNAS;j++){
@@ -46,24 +48,26 @@ int pontos=0;
  }
 
 int main(int argc, char *argv[]) {
+    int venceu=TRUE;
 	int op=0;
-	int x=5,y=10,x_ant,y_ant;
-	int flagMarca=0;
-	int marcas[3][2]={{-1,-1},
-                      {-1,-1},
-                      {-1,-1}};
+	int j,k;
+	int x=3,y=3,x_ant,y_ant;
+	//matriz que guarda as posicoes das marcas
+	int marcas[L_MARCAS][C_MARCAS]={
+                      {4,2},
+                      {4,3},
+                      {5,2},
+                      {5,3}
+                      };
 
 
-    int m[LINHAS][COLUNAS] ={{p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p},
-                             {p,p,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
-                             {p,p,e,e,z,e,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
-                             {p,p,e,e,e,p,e,p,e,c,e,e,e,e,e,e,e,e,p,p},
-                             {p,p,e,e,e,z,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
-                             {p,p,e,e,e,z,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
-                             {p,p,e,e,e,e,e,c,e,e,e,c,e,e,e,e,e,e,p,p},
-                             {p,p,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
-                             {p,p,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,e,p,p},
-                             {p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p}
+    int m[LINHAS][COLUNAS] ={{e,p,p,p,p,p,p,p,e,e},
+                             {e,p,e,e,e,e,e,p,p,p},
+                             {p,p,c,p,p,p,e,e,e,p},
+                             {p,e,e,e,c,e,e,c,e,p},
+                             {p,e,z,z,p,e,c,e,p,p},
+                             {p,p,z,z,p,z,e,e,p,e},
+                             {e,p,p,p,p,p,p,p,p,e}
 
 				  };
 
@@ -71,169 +75,125 @@ int main(int argc, char *argv[]) {
     //seta o jogador no cenário
 	m[x][y]=pers;
 
-	while(1){
+	while(TRUE){
         //limpa a tela
         system("cls");
 
         exibirJogo(m);
-        printf("x: %d, y: %d\n",marcas[0][0],marcas[0][1]);
-        printf("x: %d, y: %d\n",marcas[1][0],marcas[1][1]);
-        printf("x: %d, y: %d\n",marcas[2][0],marcas[2][1]);
-        printf("pontos: %d\n",pontos);
-        if(pontos==3){
+
+        venceu=TRUE;
+        //verifica se o jogador venceu
+        for(int i=0;i<((sizeof(marcas)/8));i++){
+             j = marcas[i][0];
+             k = marcas[i][1];
+             if(m[j][k]!=CAIXA){
+                venceu = FALSE;
+                break;
+            }
+        }
+        //caso tenha vencido, exibe uma mensagem e encerra o jogo
+        if(venceu){
             printf("Voce venceu!");
             break;
         }
+
         x_ant = x;
         y_ant=y;
+        //pega a tecla digitada
         op = getch();
-
-
-
 
         switch(op){
             case CIMA: {
-			if(x>0 && m[x-1][y]==ESPACO){
-				x-=1;
-			}else{
-                if(m[x-1][y]==CAIXA){
-                  if((m[x-2][y]!=PAREDE) && (m[x-2][y]!=CAIXA)){
-                    if((m[x-2][y]==MARCA)){
-                       ++pontos;
-                       for(int i=0;i< ((sizeof(marcas)/8));i++){
-
-                            if(marcas[i][0]==-1){
-                                marcas[i][0] = x-2;
-                                marcas[i][1] = y;
-                                break;
-                            }
-                       }
-                    }
-                    m[x-2][y] = m[x-1][y];
+                //caso a próxima posição seja válida e seja um espaço ou marca, altera a posição do jogador
+                if(x>0 && (m[x-1][y]==ESPACO || m[x-1][y]==MARCA) ){
                     x-=1;
-
-
-
-                  }
+                 //caso contrário, verifica se é uma caixa
+                }else{
+                    if(m[x-1][y]==CAIXA){
+                         //caso o elemento após a caixa seja válido, realiza a troca de posições
+                        if((m[x-2][y]!=PAREDE) && (m[x-2][y]!=CAIXA)){
+                            //a caixa é movida para a próxima posição
+                            m[x-2][y] = m[x-1][y];
+                            //a posição do jogador é alterada para a posição da caixa
+                            x-=1;
+                        }
+                    }
                 }
-			}
-
-			break;
-		}
-		case BAIXO: {
-
-			if(x<LINHAS-1 && m[x+1][y]==ESPACO){
-				x+=1;
-            }else{
-                if(m[x+1][y]==CAIXA){
-                  if((m[x+2][y]!=PAREDE) && (m[x+2][y]!=CAIXA)){
-                      if(m[x+2][y]==MARCA){
-                            pontos++;
-                            for(int i=0;i< ((sizeof(marcas)/8));i++){
-
-                            if(marcas[i][0]==-1){
-                                marcas[i][0] = x+2;
-                                marcas[i][1] = y;
-                                break;
-                            }
-                       }
-                      }
-
-                    //o espaço em frente da caixa a recebe
-                    m[x+2][y] = m[x+1][y];
-                    // a posicao x atual é incrementada
+			  break;
+		   }
+		   case BAIXO: {
+                 //caso a próxima posição seja válida e seja um espaço ou marca, altera a posição do jogador
+                if(x<LINHAS-1 && (m[x+1][y]==ESPACO|| m[x+1][y]==MARCA)){
                     x+=1;
-
-                  }
+                 //caso contrário, verifica se é uma caixa
+                }else{
+                    if(m[x+1][y]==CAIXA){
+                        //caso o elemento após a caixa seja válido, realiza a troca de posições
+                        if((m[x+2][y]!=PAREDE) && (m[x+2][y]!=CAIXA)){
+                            //a caixa é movida para a próxima posição
+                            m[x+2][y] = m[x+1][y];
+                            //a posição do jogador é alterada para a posição da caixa
+                            x+=1;
+                        }
+                    }
                 }
-			}
 			break;
 		}
 		case ESQUERDA: {
-			if(y>0 && m[x][y-1]==ESPACO){
-				y-=1;
-		}else{
-                if(m[x][y-1]==CAIXA){
-                  if((m[x][y-2]!=PAREDE) && (m[x][y-2]!=CAIXA)){
-                    if(m[x][y-2]==MARCA){
-                        pontos++;
-                         for(int i=0;i< ((sizeof(marcas)/8));i++){
-
-                            if(marcas[i][0]==-1){
-                                marcas[i][0] = x;
-                                marcas[i][1] = y-2;
-                                break;
-                            }
-                       }
-                        }
-                    m[x][y-2] = m[x][y-1];
+                //caso a próxima posição seja válida e seja um espaço ou marca, altera a posição do jogador
+                if(y>0 && (m[x][y-1]==ESPACO || m[x][y-1]==MARCA)){
                     y-=1;
-
-
-                  }
+                 //caso contrário, verifica se é uma caixa
+                }else{
+                    if(m[x][y-1]==CAIXA){
+                        //caso o elemento após a caixa seja válido, realiza a troca de posições
+                        if((m[x][y-2]!=PAREDE) && (m[x][y-2]!=CAIXA)){
+                            //caso o elemento após a caixa seja válido, realiza a troca de posições
+                            m[x][y-2] = m[x][y-1];
+                            //a posição do jogador é alterada para a posição da caixa
+                            y-=1;
+                        }
+                    }
                 }
-			}
 			break;
 		}
 		case DIREITA: {
-				if(y<COLUNAS-1 && m[x][y+1]==ESPACO)
-				{
-					y+=1;
+                //caso a próxima posição seja válida e seja um espaço ou marca, altera a posição do jogador
+				if(y<COLUNAS-1 && (m[x][y+1]==ESPACO || m[x][y+1]==MARCA)){
+				    y+=1;
+			     //caso contrário, verifica se é uma caixa
 				}else{
                     if(m[x][y+1]==CAIXA){
+                        //caso o elemento após a caixa seja válido, realiza a troca de posições
                         if((m[x][y+2]!=PAREDE) && (m[x][y+2]!=CAIXA)){
-                            if(m[x][y+2]==MARCA){
-                                pontos++;
-                                for(int i=0;i< ((sizeof(marcas)/8));i++){
-                                    if(marcas[i][0]==-1){
-                                        marcas[i][0] = x;
-                                        marcas[i][1] = y+2;
-                                        break;
-                                    }
-                       }
-                            }
+                            //caso o elemento após a caixa seja válido, realiza a troca de posições
                             m[x][y+2] = m[x][y+1];
+                            //a posição do jogador é alterada para a posição da caixa
                             y+=1;
-
-
-                  }
+                        }
+                    }
                 }
-			}
 			break;
-		}
+          }
 
-	}
+        }
 
-    for(int i=0;i<((sizeof(marcas)/8));i++){
-
-         if(marcas[i][0]!=-1){
-              if(((marcas[i][0] == x_ant) && (marcas[i][1] ==y_ant)) || ((marcas[i][0] == x) && (marcas[i][1] ==y))){
+        //laço para verificar se a posição anterior do jogado continha uma marca
+        for(int i=0;i<((sizeof(marcas)/8));i++){
+            // caso a posicao anterior coincida com alguma marca, seta a marca no lugar
+            if((marcas[i][0] == x_ant) && (marcas[i][1] == y_ant)){
+                //seta marca para a posição anterior
                 m[x_ant][y_ant]=MARCA;
-                marcas[i][0]=-1;
-                marcas[i][1]=-1;
-                --pontos;
                 break;
-              }else{
+            }else{
+                //seta espaço para a posição anterior
                 m[x_ant][y_ant]=e;
 
-              }
+            }
+        }
 
-         }
-                if(flagMarca!=1){
-                     m[x_ant][y_ant]=e;
-                     flagMarca=0;
-
-               }
-
-
-   }
-
-
-	m[x][y]=pers;
-
-
-
-
-}
+        //move o jogador
+        m[x][y]=pers;
+    }
 }
 
