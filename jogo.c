@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
                              {p,p,c,p,p,p,e,e,e,p},
                              {p,e,e,e,c,e,e,c,e,p},
                              {p,e,z,z,p,e,c,e,p,p},
-                             {p,p,z,z,p,z,e,e,p,e},
+                             {p,p,z,z,p,e,e,e,p,e},
                              {e,p,p,p,p,p,p,p,p,e}
 
 				  };
