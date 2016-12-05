@@ -19,6 +19,11 @@
 #define LINHAS 10
 #define COLUNAS 20
 
+#define L_MARCAS 2
+#define C_MARCAS 3
+
+
+
 
 //personagem
 int pers=PERSONAGEM;
@@ -43,6 +48,10 @@ int pontos=0;
 int main(int argc, char *argv[]) {
 	int op=0;
 	int x=5,y=10,x_ant,y_ant;
+	int flagMarca=0;
+	int marcas[3][2]={{-1,-1},
+                      {-1,-1},
+                      {-1,-1}};
 
 
     int m[LINHAS][COLUNAS] ={{p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p},
@@ -67,7 +76,10 @@ int main(int argc, char *argv[]) {
         system("cls");
 
         exibirJogo(m);
-
+        printf("x: %d, y: %d\n",marcas[0][0],marcas[0][1]);
+        printf("x: %d, y: %d\n",marcas[1][0],marcas[1][1]);
+        printf("x: %d, y: %d\n",marcas[2][0],marcas[2][1]);
+        printf("pontos: %d\n",pontos);
         if(pontos==3){
             printf("Voce venceu!");
             break;
@@ -87,7 +99,15 @@ int main(int argc, char *argv[]) {
                 if(m[x-1][y]==CAIXA){
                   if((m[x-2][y]!=PAREDE) && (m[x-2][y]!=CAIXA)){
                     if((m[x-2][y]==MARCA)){
-                        pontos++;
+                       ++pontos;
+                       for(int i=0;i< ((sizeof(marcas)/8));i++){
+
+                            if(marcas[i][0]==-1){
+                                marcas[i][0] = x-2;
+                                marcas[i][1] = y;
+                                break;
+                            }
+                       }
                     }
                     m[x-2][y] = m[x-1][y];
                     x-=1;
@@ -109,7 +129,16 @@ int main(int argc, char *argv[]) {
                   if((m[x+2][y]!=PAREDE) && (m[x+2][y]!=CAIXA)){
                       if(m[x+2][y]==MARCA){
                             pontos++;
+                            for(int i=0;i< ((sizeof(marcas)/8));i++){
+
+                            if(marcas[i][0]==-1){
+                                marcas[i][0] = x+2;
+                                marcas[i][1] = y;
+                                break;
+                            }
+                       }
                       }
+
                     //o espaço em frente da caixa a recebe
                     m[x+2][y] = m[x+1][y];
                     // a posicao x atual é incrementada
@@ -128,6 +157,14 @@ int main(int argc, char *argv[]) {
                   if((m[x][y-2]!=PAREDE) && (m[x][y-2]!=CAIXA)){
                     if(m[x][y-2]==MARCA){
                         pontos++;
+                         for(int i=0;i< ((sizeof(marcas)/8));i++){
+
+                            if(marcas[i][0]==-1){
+                                marcas[i][0] = x;
+                                marcas[i][1] = y-2;
+                                break;
+                            }
+                       }
                         }
                     m[x][y-2] = m[x][y-1];
                     y-=1;
@@ -147,6 +184,13 @@ int main(int argc, char *argv[]) {
                         if((m[x][y+2]!=PAREDE) && (m[x][y+2]!=CAIXA)){
                             if(m[x][y+2]==MARCA){
                                 pontos++;
+                                for(int i=0;i< ((sizeof(marcas)/8));i++){
+                                    if(marcas[i][0]==-1){
+                                        marcas[i][0] = x;
+                                        marcas[i][1] = y+2;
+                                        break;
+                                    }
+                       }
                             }
                             m[x][y+2] = m[x][y+1];
                             y+=1;
@@ -160,7 +204,31 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	m[x_ant][y_ant]=e;
+    for(int i=0;i<((sizeof(marcas)/8));i++){
+
+         if(marcas[i][0]!=-1){
+              if(((marcas[i][0] == x_ant) && (marcas[i][1] ==y_ant)) || ((marcas[i][0] == x) && (marcas[i][1] ==y))){
+                m[x_ant][y_ant]=MARCA;
+                marcas[i][0]=-1;
+                marcas[i][1]=-1;
+                --pontos;
+                break;
+              }else{
+                m[x_ant][y_ant]=e;
+
+              }
+
+         }
+                if(flagMarca!=1){
+                     m[x_ant][y_ant]=e;
+                     flagMarca=0;
+
+               }
+
+
+   }
+
+
 	m[x][y]=pers;
 
 
@@ -168,3 +236,4 @@ int main(int argc, char *argv[]) {
 
 }
 }
+
